@@ -1,0 +1,154 @@
+﻿<UserControl x:Class="VirtuellesBetriebssystem.Views.Browser.NetworkView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:VirtuellesBetriebssystem.Views.Browser"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800"
+             Loaded="UserControl_Loaded">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Steuerung -->
+        <Grid Grid.Row="0" Background="#F5F5F5">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            
+            <TextBlock Grid.Column="0" Text="Virtuelles Netzwerk" Margin="8" FontWeight="Bold" VerticalAlignment="Center"/>
+            
+            <StackPanel Grid.Column="2" Orientation="Horizontal">
+                <Button x:Name="RefreshButton" Style="{StaticResource MaterialDesignFlatButton}" Margin="4" Click="RefreshButton_Click">
+                    <materialDesign:PackIcon Kind="Refresh" Width="24" Height="24"/>
+                </Button>
+                
+                <Button x:Name="PingButton" Style="{StaticResource MaterialDesignFlatButton}" Margin="4" Click="PingButton_Click"
+                        ToolTip="Ping-Test zum ausgewählten Gerät">
+                    <materialDesign:PackIcon Kind="LanPending" Width="24" Height="24"/>
+                </Button>
+            </StackPanel>
+        </Grid>
+        
+        <!-- Netzwerk-Ansicht -->
+        <TabControl Grid.Row="1">
+            <!-- Geräteliste -->
+            <TabItem Header="Geräte">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    
+                    <!-- Liste der Geräte -->
+                    <ListView Grid.Row="0" x:Name="DevicesListView" SelectionMode="Single">
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Header="Name" Width="180" DisplayMemberBinding="{Binding Name}" />
+                                <GridViewColumn Header="IP-Adresse" Width="120" DisplayMemberBinding="{Binding IpAddress}" />
+                                <GridViewColumn Header="MAC-Adresse" Width="150" DisplayMemberBinding="{Binding MacAddress}" />
+                                <GridViewColumn Header="Status" Width="100" DisplayMemberBinding="{Binding Status}" />
+                                <GridViewColumn Header="Letzte Aktivität" Width="150" DisplayMemberBinding="{Binding LastActivity}" />
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                    
+                    <!-- Details zum ausgewählten Gerät -->
+                    <Grid Grid.Row="1" Margin="8" x:Name="DeviceDetailsGrid" Visibility="Collapsed">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Ausgewähltes Gerät:" FontWeight="Bold" Margin="0,0,8,0"/>
+                        <TextBlock Grid.Row="0" Grid.Column="1" x:Name="SelectedDeviceTextBlock" Text=""/>
+                        
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Ping-Ergebnis:" FontWeight="Bold" Margin="0,0,8,0"/>
+                        <TextBlock Grid.Row="1" Grid.Column="1" x:Name="PingResultTextBlock" Text=""/>
+                    </Grid>
+                </Grid>
+            </TabItem>
+            
+            <!-- Websites -->
+            <TabItem Header="Websites">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    
+                    <!-- Liste der Websites -->
+                    <ListView Grid.Row="0" x:Name="WebsitesListView" SelectionMode="Single" SelectionChanged="WebsitesListView_SelectionChanged">
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Header="Domain" Width="180" DisplayMemberBinding="{Binding Domain}" />
+                                <GridViewColumn Header="Titel" Width="250" DisplayMemberBinding="{Binding Title}" />
+                                <GridViewColumn Header="Server-IP" Width="120" DisplayMemberBinding="{Binding ServerIp}" />
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                    
+                    <!-- Details zur ausgewählten Website -->
+                    <Grid Grid.Row="1" Margin="8" x:Name="WebsiteDetailsGrid" Visibility="Collapsed">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Domain:" FontWeight="Bold" Margin="0,0,8,0"/>
+                        <TextBlock Grid.Row="0" Grid.Column="1" x:Name="WebsiteDomainTextBlock" Text=""/>
+                        
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Server:" FontWeight="Bold" Margin="0,0,8,0"/>
+                        <TextBlock Grid.Row="1" Grid.Column="1" x:Name="WebsiteServerTextBlock" Text=""/>
+                        
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Im Browser öffnen:" FontWeight="Bold" Margin="0,0,8,0"/>
+                        <TextBox Grid.Row="2" Grid.Column="1" x:Name="WebsiteUrlTextBox" IsReadOnly="True"/>
+                        <Button Grid.Row="2" Grid.Column="2" x:Name="OpenInBrowserButton" Margin="8,0,0,0" Click="OpenInBrowserButton_Click">
+                            <materialDesign:PackIcon Kind="Web" Width="24" Height="24"/>
+                        </Button>
+                    </Grid>
+                </Grid>
+            </TabItem>
+            
+            <!-- Netzwerk-Topologie -->
+            <TabItem Header="Netzwerk-Topologie">
+                <Grid>
+                    <TextBlock Text="Netzwerk-Visualisierung ist noch nicht implementiert." 
+                              HorizontalAlignment="Center" VerticalAlignment="Center" 
+                              FontStyle="Italic" Foreground="#AAA" />
+                </Grid>
+            </TabItem>
+        </TabControl>
+        
+        <!-- Statusleiste -->
+        <Grid Grid.Row="2" Background="#F5F5F5">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            
+            <TextBlock Grid.Column="0" x:Name="StatusTextBlock" Margin="8,4" Text="Bereit"/>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="8,4">
+                <materialDesign:PackIcon x:Name="ConnectionIcon" Kind="Wifi" Foreground="Green" VerticalAlignment="Center"/>
+                <TextBlock Text="Verbunden" Margin="4,0,0,0" VerticalAlignment="Center"/>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</UserControl>

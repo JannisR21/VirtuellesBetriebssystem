@@ -1,0 +1,334 @@
+﻿<UserControl x:Class="VirtuellesBetriebssystem.Views.TaskManager.TaskManagerView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:VirtuellesBetriebssystem.Views.TaskManager"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800"
+             Loaded="UserControl_Loaded">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Tabs -->
+        <TabControl Grid.Row="0" Grid.RowSpan="2" x:Name="MainTabControl">
+            <!-- Prozesse -->
+            <TabItem Header="Prozesse">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    
+                    <!-- Toolbar -->
+                    <ToolBarTray Grid.Row="0" Background="#F5F5F5">
+                        <ToolBar ClipToBounds="False">
+                            <Button Click="RefreshButton_Click" ToolTip="Aktualisieren">
+                                <TextBlock Text="🔄" FontSize="14"/>
+                            </Button>
+                            <Button Click="EndProcessButton_Click" ToolTip="Prozess beenden">
+                                <TextBlock Text="⏹️" FontSize="14"/>
+                            </Button>
+                            <Separator />
+                            <ComboBox x:Name="SortByComboBox" 
+                                      Width="150"
+                                      SelectionChanged="SortByComboBox_SelectionChanged">
+                                <ComboBoxItem Content="Name" />
+                                <ComboBoxItem Content="PID" />
+                                <ComboBoxItem Content="CPU" />
+                                <ComboBoxItem Content="Speicher" />
+                            </ComboBox>
+                        </ToolBar>
+                    </ToolBarTray>
+                    
+                    <!-- Prozessliste -->
+                    <ListView Grid.Row="1" x:Name="ProcessListView"
+                              BorderThickness="0" 
+                              SelectionMode="Single">
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Header="Name" Width="200" DisplayMemberBinding="{Binding Name}" />
+                                <GridViewColumn Header="PID" Width="100" DisplayMemberBinding="{Binding ProcessId}" />
+                                <GridViewColumn Header="Status" Width="100" DisplayMemberBinding="{Binding Status}" />
+                                <GridViewColumn Header="CPU" Width="80" DisplayMemberBinding="{Binding CpuUsage}" />
+                                <GridViewColumn Header="Speicher" Width="100" DisplayMemberBinding="{Binding MemoryUsage}" />
+                                <GridViewColumn Header="Threads" Width="80" DisplayMemberBinding="{Binding ThreadCount}" />
+                                <GridViewColumn Header="Startzeit" Width="150" DisplayMemberBinding="{Binding StartTime}" />
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                    
+                    <!-- Statusleiste -->
+                    <Grid Grid.Row="2" Background="#F5F5F5">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <TextBlock Grid.Column="0" 
+                                   x:Name="ProcessCountTextBlock" 
+                                   Text="Prozesse: 0" 
+                                   Margin="5" 
+                                   VerticalAlignment="Center"/>
+                        
+                        <TextBlock Grid.Column="1" 
+                                   x:Name="UpdateTimeTextBlock" 
+                                   Text="Letzte Aktualisierung: -" 
+                                   Margin="5" 
+                                   VerticalAlignment="Center"/>
+                    </Grid>
+                </Grid>
+            </TabItem>
+            
+            <!-- Leistung -->
+            <TabItem Header="Leistung">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="250"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <!-- Auswahl -->
+                    <ListBox Grid.Row="0" Grid.RowSpan="2" Grid.Column="0"
+                             x:Name="PerformanceComponentListBox"
+                             BorderThickness="0"
+                             Margin="5"
+                             SelectionChanged="PerformanceComponentListBox_SelectionChanged">
+                        <ListBoxItem Content="CPU" IsSelected="True" />
+                        <ListBoxItem Content="Arbeitsspeicher" />
+                        <ListBoxItem Content="Festplatte" />
+                        <ListBoxItem Content="Netzwerk" />
+                    </ListBox>
+                    
+                    <!-- CPU-Ansicht -->
+                    <Grid Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" x:Name="CpuPerformanceView" Visibility="Visible" IsVisibleChanged="CpuPerformanceView_IsVisibleChanged">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        
+                        <!-- CPU-Übersicht -->
+                        <StackPanel Grid.Row="0" Orientation="Vertical" Margin="10">
+                            <TextBlock Text="CPU-Auslastung" FontSize="18" FontWeight="Bold" />
+                            <ProgressBar x:Name="CpuUsageProgressBar" Height="20" Margin="0,10,0,10" Value="30" />
+                            <TextBlock x:Name="CpuUsageTextBlock" Text="30%" FontSize="14" />
+                        </StackPanel>
+                        
+                        <!-- CPU-Graph (Platzhalter) -->
+                        <Border Grid.Row="1" BorderBrush="#DDD" BorderThickness="1" Margin="10">
+                            <Canvas x:Name="CpuCanvas" Background="#F8F8F8">
+                                <!-- Hier wird der Graph dynamisch gezeichnet -->
+                            </Canvas>
+                        </Border>
+                        
+                        <!-- CPU-Details -->
+                        <Grid Grid.Row="2" Margin="10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Prozesse:" Margin="0,5,10,5" />
+                            <TextBlock Grid.Row="0" Grid.Column="1" x:Name="CpuProcessCountTextBlock" Text="0" Margin="0,5,10,5" />
+                            <TextBlock Grid.Row="0" Grid.Column="2" Text="Threads:" Margin="0,5,10,5" />
+                            <TextBlock Grid.Row="0" Grid.Column="3" x:Name="CpuThreadCountTextBlock" Text="0" Margin="0,5,10,5" />
+                            
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Uptime:" Margin="0,5,10,5" />
+                            <TextBlock Grid.Row="1" Grid.Column="1" x:Name="CpuUptimeTextBlock" Text="00:00:00" Margin="0,5,10,5" />
+                            <TextBlock Grid.Row="1" Grid.Column="2" Text="Geschwindigkeit:" Margin="0,5,10,5" />
+                            <TextBlock Grid.Row="1" Grid.Column="3" x:Name="CpuSpeedTextBlock" Text="3.2 GHz" Margin="0,5,10,5" />
+                        </Grid>
+                    </Grid>
+                    
+                    <!-- Speicher-Ansicht (initial ausgeblendet) -->
+                    <Grid Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" x:Name="MemoryPerformanceView" Visibility="Collapsed" IsVisibleChanged="MemoryPerformanceView_IsVisibleChanged">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        
+                        <!-- Speicher-Übersicht -->
+                        <StackPanel Grid.Row="0" Orientation="Vertical" Margin="10">
+                            <TextBlock Text="Arbeitsspeicher-Auslastung" FontSize="18" FontWeight="Bold" />
+                            <ProgressBar x:Name="MemoryUsageProgressBar" Height="20" Margin="0,10,0,10" Value="45" />
+                            <TextBlock x:Name="MemoryUsageTextBlock" Text="2.2 GB / 4.0 GB (45%)" FontSize="14" />
+                        </StackPanel>
+                        
+                        <!-- Speicher-Graph (Platzhalter) -->
+                        <Border Grid.Row="1" BorderBrush="#DDD" BorderThickness="1" Margin="10">
+                            <Canvas x:Name="MemoryCanvas" Background="#F8F8F8">
+                                <!-- Hier wird der Graph dynamisch gezeichnet -->
+                            </Canvas>
+                        </Border>
+                        
+                        <!-- Speicher-Details -->
+                        <Grid Grid.Row="2" Margin="10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Gesamter Speicher:" Margin="0,5,10,5" />
+                            <TextBlock Grid.Row="0" Grid.Column="1" x:Name="TotalMemoryTextBlock" Text="4.0 GB" Margin="0,5,10,5" />
+                            <TextBlock Grid.Row="0" Grid.Column="2" Text="Verfügbar:" Margin="0,5,10,5" />
+                            <TextBlock Grid.Row="0" Grid.Column="3" x:Name="AvailableMemoryTextBlock" Text="1.8 GB" Margin="0,5,10,5" />
+                            
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Virtueller Speicher:" Margin="0,5,10,5" />
+                            <TextBlock Grid.Row="1" Grid.Column="1" x:Name="VirtualMemoryTextBlock" Text="8.0 GB" Margin="0,5,10,5" />
+                            <TextBlock Grid.Row="1" Grid.Column="2" Text="Paging:" Margin="0,5,10,5" />
+                            <TextBlock Grid.Row="1" Grid.Column="3" x:Name="PagingTextBlock" Text="256 MB" Margin="0,5,10,5" />
+                        </Grid>
+                    </Grid>
+                    
+                    <!-- Festplatten-Ansicht (initial ausgeblendet) -->
+                    <Grid Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" x:Name="DiskPerformanceView" Visibility="Collapsed" IsVisibleChanged="DiskPerformanceView_IsVisibleChanged">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        
+                        <!-- Festplatten-Übersicht -->
+                        <StackPanel Grid.Row="0" Orientation="Vertical" Margin="10">
+                            <TextBlock Text="Festplatten-Auslastung" FontSize="18" FontWeight="Bold" />
+                            <ProgressBar x:Name="DiskUsageProgressBar" Height="20" Margin="0,10,0,10" Value="35" />
+                            <TextBlock x:Name="DiskUsageTextBlock" Text="35% (Lese-/Schreibzugriff)" FontSize="14" />
+                            <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
+                                <TextBlock Text="Datenträger C:" FontWeight="SemiBold" Margin="0,0,10,0"/>
+                                <TextBlock x:Name="DiskSpaceTextBlock" Text="56 GB von 120 GB belegt (47%)" />
+                            </StackPanel>
+                        </StackPanel>
+                        
+                        <!-- Festplatten-Graph (Platzhalter) -->
+                        <Border Grid.Row="1" BorderBrush="#DDD" BorderThickness="1" Margin="10">
+                            <Canvas x:Name="DiskCanvas" Background="#F8F8F8">
+                                <!-- Hier wird der Graph dynamisch gezeichnet -->
+                            </Canvas>
+                        </Border>
+                        
+                        <!-- Festplatten-Details -->
+                        <Grid Grid.Row="2" Margin="10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Lesegeschwindigkeit:" Margin="0,5,10,5" />
+                            <TextBlock Grid.Row="0" Grid.Column="1" x:Name="DiskReadSpeedTextBlock" Text="5.2 MB/s" Margin="0,5,10,5" />
+                            <TextBlock Grid.Row="0" Grid.Column="2" Text="Schreibgeschwindigkeit:" Margin="0,5,10,5" />
+                            <TextBlock Grid.Row="0" Grid.Column="3" x:Name="DiskWriteSpeedTextBlock" Text="2.7 MB/s" Margin="0,5,10,5" />
+                            
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Aktive Zeit:" Margin="0,5,10,5" />
+                            <TextBlock Grid.Row="1" Grid.Column="1" x:Name="DiskActiveTimeTextBlock" Text="35%" Margin="0,5,10,5" />
+                            <TextBlock Grid.Row="1" Grid.Column="2" Text="Dateisystem:" Margin="0,5,10,5" />
+                            <TextBlock Grid.Row="1" Grid.Column="3" x:Name="DiskFileSystemTextBlock" Text="NTFS" Margin="0,5,10,5" />
+                        </Grid>
+                    </Grid>
+                    
+                    <!-- Netzwerk-Ansicht (initial ausgeblendet) -->
+                    <Grid Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" x:Name="NetworkPerformanceView" Visibility="Collapsed" IsVisibleChanged="NetworkPerformanceView_IsVisibleChanged">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        
+                        <!-- Netzwerk-Übersicht -->
+                        <StackPanel Grid.Row="0" Orientation="Vertical" Margin="10">
+                            <TextBlock Text="Netzwerk-Auslastung" FontSize="18" FontWeight="Bold" />
+                            <ProgressBar x:Name="NetworkUsageProgressBar" Height="20" Margin="0,10,0,10" Value="25" />
+                            <TextBlock x:Name="NetworkUsageTextBlock" Text="25% (25 Mbit/s von 100 Mbit/s)" FontSize="14" />
+                            <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                                <TextBlock Text="WLAN-Netzwerk" FontWeight="SemiBold" Margin="0,0,10,0"/>
+                                <TextBlock x:Name="NetworkConnectionTextBlock" Text="Verbunden (Signal: stark)" />
+                            </StackPanel>
+                        </StackPanel>
+                        
+                        <!-- Netzwerk-Graph (Platzhalter) -->
+                        <Border Grid.Row="1" BorderBrush="#DDD" BorderThickness="1" Margin="10">
+                            <Canvas x:Name="NetworkCanvas" Background="#F8F8F8">
+                                <!-- Hier wird der Graph dynamisch gezeichnet -->
+                            </Canvas>
+                        </Border>
+                        
+                        <!-- Netzwerk-Details -->
+                        <Grid Grid.Row="2" Margin="10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Senden:" Margin="0,5,10,5" />
+                            <TextBlock Grid.Row="0" Grid.Column="1" x:Name="NetworkSendTextBlock" Text="1.2 Mbit/s" Margin="0,5,10,5" />
+                            <TextBlock Grid.Row="0" Grid.Column="2" Text="Empfangen:" Margin="0,5,10,5" />
+                            <TextBlock Grid.Row="0" Grid.Column="3" x:Name="NetworkReceiveTextBlock" Text="3.8 Mbit/s" Margin="0,5,10,5" />
+                            
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="IP-Adresse:" Margin="0,5,10,5" />
+                            <TextBlock Grid.Row="1" Grid.Column="1" x:Name="NetworkIpAddressTextBlock" Text="192.168.1.100" Margin="0,5,10,5" />
+                            <TextBlock Grid.Row="1" Grid.Column="2" Text="Gesendet/Empfangen:" Margin="0,5,10,5" />
+                            <TextBlock Grid.Row="1" Grid.Column="3" x:Name="NetworkTotalTransferTextBlock" Text="25 MB / 75 MB" Margin="0,5,10,5" />
+                        </Grid>
+                    </Grid>
+                </Grid>
+            </TabItem>
+            
+            <!-- Threads -->
+            <TabItem Header="Threads">
+                <!-- Thread-Liste -->
+                <ListView x:Name="ThreadListView"
+                          BorderThickness="0" 
+                          SelectionMode="Single">
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Header="PID" Width="100" DisplayMemberBinding="{Binding ProcessId}" />
+                            <GridViewColumn Header="Prozess" Width="200" DisplayMemberBinding="{Binding ProcessName}" />
+                            <GridViewColumn Header="TID" Width="100" DisplayMemberBinding="{Binding ThreadId}" />
+                            <GridViewColumn Header="Name" Width="200" DisplayMemberBinding="{Binding Name}" />
+                            <GridViewColumn Header="Status" Width="100" DisplayMemberBinding="{Binding Status}" />
+                            <GridViewColumn Header="CPU" Width="80" DisplayMemberBinding="{Binding CpuUsage}" />
+                            <GridViewColumn Header="Startzeit" Width="150" DisplayMemberBinding="{Binding StartTime}" />
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</UserControl>

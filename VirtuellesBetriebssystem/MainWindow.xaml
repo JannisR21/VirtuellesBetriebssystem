@@ -1,0 +1,234 @@
+﻿<Window x:Class="VirtuellesBetriebssystem.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:VirtuellesBetriebssystem"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        mc:Ignorable="d"
+        Title="Virtuelles Betriebssystem" Height="768" Width="1024" 
+        WindowStartupLocation="CenterScreen" 
+        Background="White" 
+        FontFamily="Segoe UI"
+        Foreground="Black">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Desktop Bereich -->
+        <Grid Grid.Row="0" Background="#FF2C3E50">
+            <Grid.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Ansicht" IsEnabled="False">
+                        <MenuItem.Icon>
+                            <materialDesign:PackIcon Kind="ViewGrid"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <Separator/>
+                    <MenuItem Header="Neu">
+                        <MenuItem.Icon>
+                            <materialDesign:PackIcon Kind="AddBox"/>
+                        </MenuItem.Icon>
+                        <MenuItem Header="Ordner" Click="NewDesktopFolder_Click">
+                            <MenuItem.Icon>
+                                <materialDesign:PackIcon Kind="FolderPlus"/>
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="Textdatei" Click="NewDesktopFile_Click">
+                            <MenuItem.Icon>
+                                <materialDesign:PackIcon Kind="FileDocument"/>
+                            </MenuItem.Icon>
+                        </MenuItem>
+                    </MenuItem>
+                    <Separator/>
+                    <MenuItem Header="Aktualisieren" Click="RefreshDesktop_Click">
+                        <MenuItem.Icon>
+                            <materialDesign:PackIcon Kind="Refresh"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                </ContextMenu>
+            </Grid.ContextMenu>
+            
+            <!-- Desktop Icons Grid -->
+            <ItemsControl x:Name="DesktopIconsControl" Panel.ZIndex="1">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel Orientation="Horizontal" VerticalAlignment="Top"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Width="80" Height="90" Margin="5" MouseLeftButtonDown="DesktopIcon_MouseLeftButtonDown">
+                            <Border.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="Öffnen" Click="OpenDesktopIcon_Click"/>
+                                    <Separator/>
+                                    <MenuItem Header="Löschen" Click="DeleteDesktopIcon_Click"/>
+                                </ContextMenu>
+                            </Border.ContextMenu>
+                            <StackPanel VerticalAlignment="Center">
+                                <materialDesign:PackIcon Kind="{Binding IconKind}" 
+                                                     Width="40" Height="40" 
+                                                     HorizontalAlignment="Center" />
+                                <TextBlock Text="{Binding Name}" 
+                                           TextWrapping="Wrap" 
+                                           TextAlignment="Center" 
+                                           Margin="0,5" 
+                                           Foreground="White"
+                                           HorizontalAlignment="Center" />
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            
+            <!-- Canvas für App-Fenster -->
+            <Canvas x:Name="DesktopCanvas" Panel.ZIndex="10">
+                <!-- Hier werden App-Fenster dynamisch hinzugefügt -->
+            </Canvas>
+        </Grid>
+        
+        <!-- Taskleiste -->
+        <Border Grid.Row="1" Background="#FF34495E" Padding="8">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
+                <!-- Start-Button -->
+                <Button Grid.Column="0" Style="{StaticResource MaterialDesignFloatingActionMiniLightButton}"
+                        ToolTip="Startmenü öffnen" Margin="4" Click="StartButton_Click">
+                    <TextBlock Text="Start" Foreground="White"/>
+                </Button>
+                
+                <!-- Laufende Apps -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal" x:Name="TaskbarStackPanel">
+                    <!-- Hier werden laufende Apps dynamisch als Buttons hinzugefügt -->
+                </StackPanel>
+                
+                <!-- Systray/Benachrichtigungsbereich -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                    <!-- WLAN-Symbol -->
+                    <materialDesign:PackIcon Kind="Wifi" Foreground="White" Margin="4,0" Width="20" Height="20" VerticalAlignment="Center">
+                        <materialDesign:PackIcon.ToolTip>
+                            <ToolTip Content="WLAN: Verbunden"/>
+                        </materialDesign:PackIcon.ToolTip>
+                    </materialDesign:PackIcon>
+                    
+                    <!-- Batterie-Symbol -->
+                    <materialDesign:PackIcon Kind="BatteryHigh" Foreground="White" Margin="4,0" Width="20" Height="20" VerticalAlignment="Center" x:Name="BatteryIcon">
+                        <materialDesign:PackIcon.ToolTip>
+                            <ToolTip x:Name="BatteryTooltip" Content="Batterie: 85%"/>
+                        </materialDesign:PackIcon.ToolTip>
+                    </materialDesign:PackIcon>
+                    
+                    <!-- Lautstärke-Symbol -->
+                    <materialDesign:PackIcon Kind="VolumeHigh" Foreground="White" Margin="4,0" Width="20" Height="20" VerticalAlignment="Center">
+                        <materialDesign:PackIcon.ToolTip>
+                            <ToolTip Content="Lautstärke: 75%"/>
+                        </materialDesign:PackIcon.ToolTip>
+                    </materialDesign:PackIcon>
+                    
+                    <!-- Uhr -->
+                    <TextBlock x:Name="ClockTextBlock" 
+                               VerticalAlignment="Center" Margin="8,0,4,0"
+                               FontSize="14" Foreground="White" 
+                               Text="00:00:00"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+        
+        <!-- Sperrbildschirm -->
+        <ContentControl x:Name="LockScreenContainer" Grid.RowSpan="2" Visibility="Collapsed" Panel.ZIndex="1000"/>
+        
+        <!-- Startmenü Popup -->
+        <Popup x:Name="StartMenuPopup" StaysOpen="False" 
+               PlacementTarget="{Binding ElementName=DesktopCanvas}" 
+               Placement="Bottom" AllowsTransparency="True">
+            <Border Width="300" Background="#FF34495E" BorderBrush="#FF2C3E50" BorderThickness="1">
+                <StackPanel Margin="16">
+                    <TextBlock Text="SimOS" FontSize="24" Foreground="White" 
+                               HorizontalAlignment="Center" Margin="0 0 0 16"/>
+                    
+                    <Button Style="{StaticResource MaterialDesignFlatButton}" 
+                            Foreground="White" Margin="0 4" Click="OpenTerminal_Click"
+                            HorizontalContentAlignment="Left" Width="268">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text=">" FontWeight="Bold" Margin="0 0 8 0"/>
+                            <TextBlock Text="Terminal"/>
+                        </StackPanel>
+                    </Button>
+                    
+                    <Button Style="{StaticResource MaterialDesignFlatButton}" 
+                            Foreground="White" Margin="0 4" Click="OpenFileExplorer_Click"
+                            HorizontalContentAlignment="Left" Width="268">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="📁" FontWeight="Bold" Margin="0 0 8 0"/>
+                            <TextBlock Text="Datei-Explorer"/>
+                        </StackPanel>
+                    </Button>
+                    
+                    <Button Style="{StaticResource MaterialDesignFlatButton}" 
+                            Foreground="White" Margin="0 4" Click="OpenTextEditor_Click"
+                            HorizontalContentAlignment="Left" Width="268">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="📝" FontWeight="Bold" Margin="0 0 8 0"/>
+                            <TextBlock Text="Editor"/>
+                        </StackPanel>
+                    </Button>
+                    
+                    <Button Style="{StaticResource MaterialDesignFlatButton}" 
+                            Foreground="White" Margin="0 4" Click="OpenTaskManager_Click"
+                            HorizontalContentAlignment="Left" Width="268">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="📊" FontWeight="Bold" Margin="0 0 8 0"/>
+                            <TextBlock Text="Task-Manager"/>
+                        </StackPanel>
+                    </Button>
+                    
+                    <Button Style="{StaticResource MaterialDesignFlatButton}" 
+                            Foreground="White" Margin="0 4" Click="OpenBrowser_Click"
+                            HorizontalContentAlignment="Left" Width="268">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="🌐" FontWeight="Bold" Margin="0 0 8 0"/>
+                            <TextBlock Text="Web-Browser"/>
+                        </StackPanel>
+                    </Button>
+                    
+                    <Button Style="{StaticResource MaterialDesignFlatButton}" 
+                            Foreground="White" Margin="0 4" Click="OpenNetwork_Click"
+                            HorizontalContentAlignment="Left" Width="268">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="🖧" FontWeight="Bold" Margin="0 0 8 0"/>
+                            <TextBlock Text="Netzwerk"/>
+                        </StackPanel>
+                    </Button>
+                    
+                    <Separator Margin="0 8" Background="#FF2C3E50"/>
+                    
+                    <Button Style="{StaticResource MaterialDesignFlatButton}" 
+                            Foreground="White" Margin="0 4" Click="LockButton_Click"
+                            HorizontalContentAlignment="Left" Width="268">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="🔒" FontWeight="Bold" Margin="0 0 8 0"/>
+                            <TextBlock Text="Sperren"/>
+                        </StackPanel>
+                    </Button>
+                    
+                    <Button Style="{StaticResource MaterialDesignFlatButton}" 
+                            Foreground="White" Margin="0 4" Click="LogoutButton_Click"
+                            HorizontalContentAlignment="Left" Width="268">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="🚪" FontWeight="Bold" Margin="0 0 8 0"/>
+                            <TextBlock Text="Abmelden"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </Border>
+        </Popup>
+    </Grid>
+</Window>
