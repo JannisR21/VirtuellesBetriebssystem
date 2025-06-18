@@ -1,0 +1,87 @@
+# Build-Ordner
+bin/
+obj/
+
+# User-spezifische Dateien
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Rider/JetBrains
+.idea/
+
+# Visual Studio Code
+.vscode/
+
+# ReSharper
+_ReSharper*/
+*.DotSettings.user
+
+# NuGet
+*.nupkg
+*.snupkg
+.nuget/
+packages/
+project.lock.json
+project.assets.json
+
+# Logfiles
+*.log
+
+# Debug-Dateien
+*.pdb
+*.mdb
+
+# Datenbankdateien
+*.mdf
+*.ldf
+
+# Windows Thumb.db oder ähnliche
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# VS auto generated
+*.cache
+*.dbmdl
+
+# WPF/XAML-generated
+*.g.cs
+*.g.i.cs
+*.baml
+*.xaml.cs
+
+# Publish-Verzeichnisse
+publish/
+AppPackages/
+*.appx
+*.appxbundle
+*.msix
+*.msixbundle
+
+# Temporary Dateien
+~$*
+*.tmp
+
+# Icon mit Zone-Identifier (Windows Sicherheitsinfos)
+*.ico
+*.ico/Zone.Identifier
+*Zone.Identifier
+
+# Tools wie Rider, VS, VS Code
+.vs/
+.vscode/
+.idea/
+
+# Dotnet-Tool-Einstellungen
+*.deps.json
+*.runtimeconfig.json
+
+# Test-Ergebnisse
+TestResult*/
+*.trx
+
+# Sonstiges
+*.bak
+*.orig
